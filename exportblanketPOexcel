@@ -1,0 +1,74 @@
+codeunit 50144 "Blanket PO Export"
+{
+    procedure ExportBlanketPOToExcel(BlanketPO: Record "Purchase Header")
+    var
+        PurchaseLine: Record "Purchase Line";
+        ExcelBuffer: Record "Excel Buffer" temporary;
+    begin
+        // Validate the blanket purchase order
+        if BlanketPO."No." = '' then
+            Error('Please select a blanket purchase order to export.');
+
+        // Clear Excel Buffer
+        ExcelBuffer.DeleteAll();
+
+        // Create header row with proper column definitions
+        ExcelBuffer.NewRow();
+        ExcelBuffer.AddColumn('PO Number', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Vendor No.', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Vendor Name', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Document Date', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Expected Receipt Date', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Currency', false, '', false, false, false, '', 0);
+
+        // Add document data
+        ExcelBuffer.NewRow();
+        ExcelBuffer.AddColumn(BlanketPO."No.", false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn(BlanketPO."Buy-from Vendor No.", false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn(BlanketPO."Buy-from Vendor Name", false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn(Format(BlanketPO."Document Date"), false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn(Format(BlanketPO."Expected Receipt Date"), false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn(BlanketPO."Currency Code", false, '', false, false, false, '', 0);
+
+        // Add blank row
+        ExcelBuffer.NewRow();
+
+        // Add line items header row
+        ExcelBuffer.NewRow();
+        ExcelBuffer.AddColumn('Line No.', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Type', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Item No.', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Description', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Quantity', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Unit of Measure', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Unit Cost', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Amount', false, '', false, false, false, '', 0);
+        ExcelBuffer.AddColumn('Invoiced Amount from BPO', false, '', false, false, false, '', 0);
+
+        // Add purchase lines
+        PurchaseLine.SetRange("Document Type", BlanketPO."Document Type");
+        PurchaseLine.SetRange("Document No.", BlanketPO."No.");
+
+        if PurchaseLine.FindSet() then
+            repeat
+                ExcelBuffer.NewRow();
+                ExcelBuffer.AddColumn(Format(PurchaseLine."Line No."), false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(Format(PurchaseLine.Type), false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(PurchaseLine."No.", false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(PurchaseLine.Description, false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(Format(PurchaseLine.Quantity), false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(PurchaseLine."Unit of Measure Code", false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(Format(PurchaseLine."Direct Unit Cost"), false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(Format(PurchaseLine.Amount), false, '', false, false, false, '', 0);
+                ExcelBuffer.AddColumn(Format(PurchaseLine."Invoiced Amount from BPO"), false, '', false, false, false, '', 0);
+            until PurchaseLine.Next() = 0;
+
+        // Export to Excel
+        ExcelBuffer.CreateNewBook('Blanket PO Export');
+        ExcelBuffer.WriteSheet('Sheet1', CompanyName(), UserId());
+        ExcelBuffer.CloseBook();
+        ExcelBuffer.OpenExcel();
+
+        Message('Blanket Purchase Order exported to Excel successfully.');
+    end;
+}
