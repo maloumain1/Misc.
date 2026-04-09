@@ -1,0 +1,60 @@
+codeunit 50101 "Make Orders Mgt"
+{
+    procedure CreateOrdersFromBlankets(var BlanketHeader: Record "Purchase Header"; PostingDate: Date)
+    var
+        OrderCount: Integer;
+    begin
+        OrderCount := 0;
+        if BlanketHeader.FindSet() then
+            repeat
+                CreatePurchaseOrder(BlanketHeader, PostingDate);
+                OrderCount += 1;
+            until BlanketHeader.Next() = 0;
+
+        if OrderCount > 0 then
+            Message('%1 purchase order(s) created successfully.', OrderCount)
+        else
+            Message('No blanket purchase orders were processed.');
+    end;
+
+    local procedure CreatePurchaseOrder(BlanketHeader: Record "Purchase Header"; PostingDate: Date)
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        BlanketLine: Record "Purchase Line";
+        NextLineNo: Integer;
+    begin
+        // Create new Purchase Header (Order)
+        PurchaseHeader.Init();
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader.Validate("Buy-from Vendor No.", BlanketHeader."Buy-from Vendor No.");
+        PurchaseHeader.Validate("Buy-from Vendor Name", BlanketHeader."Buy-from Vendor Name");
+        PurchaseHeader.Validate("Buy-from Vendor Name 2", BlanketHeader."Buy-from Vendor Name 2");
+        PurchaseHeader.Validate("Pay-to Vendor No.", BlanketHeader."Pay-to Vendor No.");
+        PurchaseHeader.Validate("Pay-to Name", BlanketHeader."Pay-to Name");
+        PurchaseHeader.Validate("Pay-to Name 2", BlanketHeader."Pay-to Name 2");
+        PurchaseHeader.Validate("Ship-to Code", BlanketHeader."Ship-to Code");
+        PurchaseHeader.Validate("Document Date", PostingDate);
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Insert(true);
+
+        // Copy lines from blanket to order
+        BlanketLine.SetRange("Document No.", BlanketHeader."No.");
+        BlanketLine.SetRange("Document Type", BlanketHeader."Document Type");
+
+        NextLineNo := 10000;
+        if BlanketLine.FindSet() then
+            repeat
+                PurchaseLine.Init();
+                PurchaseLine."Document Type" := PurchaseHeader."Document Type";
+                PurchaseLine."Document No." := PurchaseHeader."No.";
+                PurchaseLine."Line No." := NextLineNo;
+                PurchaseLine.Type := BlanketLine.Type;
+                PurchaseLine."No." := BlanketLine."No.";
+                PurchaseLine.Quantity := BlanketLine.Quantity;
+                PurchaseLine."Unit of Measure Code" := BlanketLine."Unit of Measure Code";
+                PurchaseLine.Insert(true);
+                NextLineNo += 10000;
+            until BlanketLine.Next() = 0;
+    end;
+}
