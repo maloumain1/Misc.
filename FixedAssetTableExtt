@@ -1,0 +1,11 @@
+tableextension 50149 FixedAssetExt extends "Fixed Asset"
+{
+    fields
+    {
+        field(50149; "New No."; Code[10])
+        {
+            Caption = 'New No.';
+            DataClassification = ToBeClassified;
+        }
+    }
+}
