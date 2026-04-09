@@ -1,0 +1,29 @@
+pageextension 50142 BlanketPurchaseOrdersExt extends "Blanket Purchase Orders"
+{
+    actions
+    {
+        addlast(Processing)
+        {
+            action(MakeOrders)
+            {
+                ApplicationArea = All;
+                Caption = 'Make Orders';
+                Image = New;
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    BlanketHeader: Record "Purchase Header";
+                    MakeOrdersMgt: Codeunit "Make Orders Mgt";
+                    PostingDateDlg: Page "Posting Date Dialog";
+                begin
+                    if PostingDateDlg.RunModal() = Action::OK then begin
+                        CurrPage.SetSelectionFilter(BlanketHeader);
+                        MakeOrdersMgt.CreateOrdersFromBlankets(BlanketHeader, PostingDateDlg.GetPostingDate());
+                    end;
+                end;
+            }
+        }
+    }
+}
