@@ -1,0 +1,36 @@
+page 50132 "Posting Date Dialog"
+{
+    PageType = StandardDialog;
+    Caption = 'Make Orders - Set Posting Date';
+    DataCaptionExpression = '';
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                Caption = 'Enter the posting date to apply to all purchase orders.';
+                field(PostingDate; PostingDate)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Posting Date';
+                    NotBlank = true;
+                }
+            }
+        }
+    }
+
+    trigger OnOpenPage()
+    begin
+        PostingDate := Today();
+    end;
+
+    procedure GetPostingDate(): Date
+    begin
+        exit(PostingDate);
+    end;
+
+    var
+        PostingDate: Date;
+}
