@@ -1,0 +1,16 @@
+
+pageextension 50143 "Blanket PO Lines Ext 2" extends "Purchase Order Subform"
+{
+    layout
+    {
+        addlast(Control1)
+        {
+            field("Invoiced Amount from BPO"; Rec."Invoiced Amount from BPO")
+            {
+                Caption = 'Invoiced Amount from BPO';
+                ApplicationArea = All;
+                Editable = false;
+            }
+        }
+    }
+}
