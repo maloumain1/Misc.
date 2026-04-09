@@ -1,0 +1,16 @@
+tableextension 50140 "Purchase Line Ext" extends "Purchase Line"
+{
+    fields
+    {
+        field(50100; "Invoiced Amount from BPO"; Decimal)
+        {
+            Caption = 'Invoiced Amount from Blanket PO';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = sum("Purch. Inv. Line"."Amount" where(
+                "Blanket Order No." = field("Document No."),
+                "Blanket Order Line No." = field("Line No.")
+            ));
+        }
+    }
+}
