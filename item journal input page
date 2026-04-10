@@ -16,7 +16,8 @@ page 50102 "Item Journal Input"
                 {
                     Caption = 'Item No.';
                     ApplicationArea = All;
-                    Editable = false;
+                    Editable = ItemNoEditable;
+                    TableRelation = Item."No.";
                     ToolTip = 'Specifies the item number.';
                 }
                 field(LotNoField; LotNo)
@@ -47,10 +48,17 @@ page 50102 "Item Journal Input"
         LotNo: Code[50];
         LocationCode: Code[10];
         Qty: Decimal;
+        ItemNoEditable: Boolean;
+
+    trigger OnInit()
+    begin
+        ItemNoEditable := true;
+    end;
 
     procedure SetItemNo(NewItemNo: Code[20])
     begin
         ItemNo := NewItemNo;
+        ItemNoEditable := false;
     end;
 
     procedure GetValues(var OutItemNo: Code[20]; var OutLotNo: Code[50]; var OutLocationCode: Code[10]; var OutQty: Decimal)
