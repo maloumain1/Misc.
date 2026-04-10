@@ -1,0 +1,74 @@
+page 50105 "Item Journal Input Subform"
+{
+    PageType = ListPart;
+    Caption = 'Items';
+    SourceTable = "Item Journal Batch Entry";
+    SourceTableTemporary = true;
+    DelayedInsert = true;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Lines)
+            {
+                field("Item No."; Rec."Item No.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the item number.';
+                }
+                field("Lot No."; Rec."Lot No.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the lot number for item tracking. Leave blank if no lot tracking is required.';
+                }
+                field("Location Code"; Rec."Location Code")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the location where the item quantity will be adjusted.';
+                }
+                field(Quantity; Rec.Quantity)
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the quantity. Use a positive number for a Positive Adjustment or a negative number for a Negative Adjustment.';
+                }
+            }
+        }
+    }
+
+    var
+        NextEntryNo: Integer;
+
+    trigger OnNewRecord(BelowxRec: Boolean)
+    begin
+        NextEntryNo += 1;
+        Rec."Entry No." := NextEntryNo;
+    end;
+
+    procedure SetRecords(var TempEntry: Record "Item Journal Batch Entry" temporary)
+    begin
+        Rec.Reset();
+        Rec.DeleteAll();
+        NextEntryNo := 0;
+        if TempEntry.FindSet() then
+            repeat
+                if TempEntry."Entry No." > NextEntryNo then
+                    NextEntryNo := TempEntry."Entry No.";
+                Rec := TempEntry;
+                Rec.Insert();
+            until TempEntry.Next() = 0;
+        CurrPage.Update(false);
+    end;
+
+    procedure GetRecords(var TempOut: Record "Item Journal Batch Entry" temporary)
+    begin
+        TempOut.Reset();
+        TempOut.DeleteAll();
+        Rec.Reset();
+        if Rec.FindSet() then
+            repeat
+                TempOut := Rec;
+                TempOut.Insert();
+            until Rec.Next() = 0;
+    end;
+}
