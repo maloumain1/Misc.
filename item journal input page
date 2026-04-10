@@ -1,0 +1,63 @@
+page 50102 "Item Journal Input"
+{
+    PageType = StandardDialog;
+    Caption = 'Create Item Journal Entry';
+    ApplicationArea = All;
+
+    layout
+    {
+        area(Content)
+        {
+            group(General)
+            {
+                Caption = 'General';
+
+                field(ItemNoField; ItemNo)
+                {
+                    Caption = 'Item No.';
+                    ApplicationArea = All;
+                    Editable = false;
+                    ToolTip = 'Specifies the item number.';
+                }
+                field(LotNoField; LotNo)
+                {
+                    Caption = 'Lot No.';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the lot number for item tracking. Leave blank if no lot tracking is required.';
+                }
+                field(LocationCodeField; LocationCode)
+                {
+                    Caption = 'Location Code';
+                    ApplicationArea = All;
+                    TableRelation = Location.Code;
+                    ToolTip = 'Specifies the location where the item quantity will be adjusted.';
+                }
+                field(QuantityField; Qty)
+                {
+                    Caption = 'Quantity';
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies the quantity. Enter a positive value for a Positive Adjustment or a negative value for a Negative Adjustment.';
+                }
+            }
+        }
+    }
+
+    var
+        ItemNo: Code[20];
+        LotNo: Code[50];
+        LocationCode: Code[10];
+        Qty: Decimal;
+
+    procedure SetItemNo(NewItemNo: Code[20])
+    begin
+        ItemNo := NewItemNo;
+    end;
+
+    procedure GetValues(var OutItemNo: Code[20]; var OutLotNo: Code[50]; var OutLocationCode: Code[10]; var OutQty: Decimal)
+    begin
+        OutItemNo := ItemNo;
+        OutLotNo := LotNo;
+        OutLocationCode := LocationCode;
+        OutQty := Qty;
+    end;
+}
