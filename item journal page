@@ -1,0 +1,39 @@
+pageextension 50104 "Item Journal Page Extension" extends "Item Journal"
+{
+    actions
+    {
+        addlast(processing)
+        {
+            action(CreateItemJournalLineAction)
+            {
+                Caption = 'Create Item Journal Line';
+                ApplicationArea = All;
+                Image = ItemJournal;
+                ToolTip = 'Create an item journal adjustment line with optional lot tracking.';
+
+                trigger OnAction()
+                var
+                    ItemJournalInput: Page "Item Journal Input";
+                    MakeOrdersMgt: Codeunit "Make Orders Mgt";
+                    ItemNo: Code[20];
+                    LotNo: Code[50];
+                    LocationCode: Code[10];
+                    Qty: Decimal;
+                begin
+                    if ItemJournalInput.RunModal() = Action::OK then begin
+                        ItemJournalInput.GetValues(ItemNo, LotNo, LocationCode, Qty);
+                        MakeOrdersMgt.CreateItemJournalLine(ItemNo, LotNo, LocationCode, Qty);
+                        Message('Item Journal Line created successfully.');
+                        CurrPage.Update(false);
+                    end;
+                end;
+            }
+        }
+        addfirst(Promoted)
+        {
+            actionref(CreateItemJournalLineActionRef; CreateItemJournalLineAction)
+            {
+            }
+        }
+    }
+}
