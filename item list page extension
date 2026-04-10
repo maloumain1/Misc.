@@ -1,0 +1,39 @@
+pageextension 50103 "Item List Extension" extends "Item List"
+{
+    actions
+    {
+        addlast(processing)
+        {
+            action(CreateItemJournalLine)
+            {
+                Caption = 'Create Item Journal Line';
+                ApplicationArea = All;
+                Image = ItemJournal;
+                ToolTip = 'Create an item journal adjustment line for this item with optional lot tracking.';
+
+                trigger OnAction()
+                var
+                    ItemJournalInput: Page "Item Journal Input";
+                    MakeOrdersMgt: Codeunit "Make Orders Mgt";
+                    ItemNo: Code[20];
+                    LotNo: Code[50];
+                    LocationCode: Code[10];
+                    Qty: Decimal;
+                begin
+                    ItemJournalInput.SetItemNo(Rec."No.");
+                    if ItemJournalInput.RunModal() = Action::OK then begin
+                        ItemJournalInput.GetValues(ItemNo, LotNo, LocationCode, Qty);
+                        MakeOrdersMgt.CreateItemJournalLine(ItemNo, LotNo, LocationCode, Qty);
+                        Message('Item Journal Line created successfully.');
+                    end;
+                end;
+            }
+        }
+        addfirst(Promoted)
+        {
+            actionref(CreateItemJournalLineRef; CreateItemJournalLine)
+            {
+            }
+        }
+    }
+}
