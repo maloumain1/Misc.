@@ -1,0 +1,26 @@
+page 50110 "Finance A/R Customer Lis"
+{
+    PageType = List;
+    SourceTable = Customer;
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    Caption = 'Finance A/R';
+
+    layout
+    {
+        area(content)
+        {
+            repeater(Group)
+            {
+                field("No."; Rec."No.") { }
+                field(Name; Rec.Name) { }
+                field("Phone No."; Rec."Phone No.") { }
+                field(Contact; Rec.Contact) { }
+                field(Balance; Rec.Balance) { }
+                field("Balance Due (LCY)"; Rec."Balance Due (LCY)") { }
+                field("Sales (LCY)"; Rec."Sales (LCY)") { }
+                field("Payments (LCY)"; Rec."Payments (LCY)") { }
+            }
+        }
+    }
+}
