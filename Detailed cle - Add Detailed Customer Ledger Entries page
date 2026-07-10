@@ -1,0 +1,68 @@
+page 50115 "Detailed Customer Ledger Ent"
+{
+    PageType = List;
+    SourceTable = "Detailed Cust. Ledg. Entry";
+
+    Caption = 'Detailed Customer Ledger Entries';
+    ApplicationArea = All;
+    UsageCategory = Lists;
+    Editable = false;
+
+    layout
+    {
+        area(Content)
+        {
+            repeater(Entries)
+            {
+                field("Posting Date"; Rec."Posting Date")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Entry Type"; Rec."Entry Type")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Document Type"; Rec."Document Type")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Document No."; Rec."Document No.")
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Amount"; Rec.Amount)
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Remaining Amount"; RemainingAmount)
+                {
+                    ApplicationArea = All;
+                }
+
+                field("Entry No."; Rec."Entry No.")
+                {
+                    ApplicationArea = All;
+                }
+            }
+        }
+    }
+
+    trigger OnAfterGetRecord()
+    begin
+        RemainingAmount := 0;
+
+        if CustLedgerEntry.Get(Rec."Cust. Ledger Entry No.") then begin
+            CustLedgerEntry.CalcFields("Remaining Amount");
+            RemainingAmount := CustLedgerEntry."Remaining Amount";
+        end;
+    end;
+
+    var
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        RemainingAmount: Decimal;
+}
